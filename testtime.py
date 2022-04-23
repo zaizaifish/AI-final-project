@@ -2,8 +2,9 @@ import sys
 from timeit import repeat as rep
 import numpy as np
 import matplotlib.pyplot as plt
-from algorithms import *
-from algorithms.utilities.maze import get_maze
+from run import simple_hill_climbing, simulated_annealing, \
+                steepest_ascent_hill_climbing, astar, all_list
+from maze import get_maze
 
 ##########################################################
                                                         ##
@@ -13,9 +14,9 @@ from algorithms.utilities.maze import get_maze
 #        these 2 variables)                             ##
                                                         ##
 algorithms = (                                          ## 
-    simple,                                             ##
-    simulatedannealing,                                 ##
-    steepestascent,                                     ##
+    simple_hill_climbing,                               ##
+    simulated_annealing,                                ##
+    steepest_ascent_hill_climbing,                      ##
     astar                                               ##
 )                                                       ##
 ticklables = [                                          ##
@@ -29,8 +30,8 @@ ticklables = [                                          ##
 
 # To compare all the algorithms available, use this, otherwise comment this
 algorithms = tuple(all_list)
-ticklables_long = tuple(i.name for i in algorithms)
-ticklables = tuple('\n'.join(i.name.split(' ')) for i in algorithms)
+ticklables_long = tuple(i.__name__ for i in algorithms)
+ticklables = tuple('\n'.join(i.__name__.split(' ')) for i in algorithms)
 
 std_reptimes = 1000
 
@@ -46,7 +47,7 @@ def check_maze(maze):
     '''checks the running time of all algorithms to solve the maze 'maze'
     yields running time for each algorithm'''
     for module in algorithms:
-        yield check_running_time(module.RUN, maze, reptimes = std_reptimes)
+        yield check_running_time(module, maze, reptimes = std_reptimes)
 
 def main(mazes):
     '''takes input as a list of filenames as mazes, converts them to 
@@ -80,9 +81,10 @@ def BarGraph(data):
     width = 0.90 / len(data)
     c = - (len(data) / 2)
     for i in data:
-        rects.append(subfig.bar(indices + width * c, i, width, color = next(colors)))
+        rects.append(subfig.bar(indices + width * c, i, width, \
+            color=next(colors)))
         c += 1
-    subfig.set_ylabel("running time (miliseconds)")
+    subfig.set_ylabel("running time (second(s))")
     subfig.set_xlabel("algorithms")
     subfig.set_xticks(indices - width / 2)
     subfig.set_xticklabels(tuple(ticklables))
