@@ -1,30 +1,14 @@
 import sys
 import random
+import math
 import argparse as ap
-from math import e
-try:
-    try:
-        from .utilities import run_simulation
-        from .utilities.maze import main, get_maze, SOLUTION_FOUND, SOLUTION_NOT_FOUND
-    except ImportError:
-        from utilities import run_simulation
-        from utilities.maze import main, get_maze, SOLUTION_FOUND, SOLUTION_NOT_FOUND
-    SDL = True
-except ImportError:
-    try:
-        from .utilities.maze import main, get_maze, SOLUTION_FOUND, SOLUTION_NOT_FOUND
-    except ImportError:
-        from utilities.maze import main, get_maze, SOLUTION_FOUND, SOLUTION_NOT_FOUND
-    SDL = False
+from utilities import run_simulation
+from utilities.graphnode import node
+from collections import defaultdict, deque
+from utilities.maze import *
+SDL = True
 
 name = "simulated annealing"
-
-delta_E = lambda E1, E2: E1 - E2
-
-def probability(dE, T):
-    k = 1e-2
-    exp = - (dE / (k * T))
-    return e ** exp
 
 def simulated_annealing(maze):
     currentstate = maze.startstate
@@ -32,6 +16,8 @@ def simulated_annealing(maze):
     path = [currentstate]
     testpath = []
     T = 200
+    k = 1e-2
+    random.seed(1024)
     prev = None
     while currentstate != goalstate:
         found = False
@@ -45,7 +31,7 @@ def simulated_annealing(maze):
             E2 = maze.value(state)
             if state == goalstate:
                 path.append(state)
-                return path, SOLUTION_FOUND
+                return path, None
             if maze.is_better(state, currentstate):
                 path.extend(testpath)
                 path.append(state)
@@ -55,7 +41,11 @@ def simulated_annealing(maze):
                 found = True
                 break
             else:
-                p = probability(delta_E(E2, E1), T)
+                p = 0
+                try:
+                    p = math.e ** (- ((E2 - E1) / (k * T)))
+                except:
+                    p = 1
                 if p < random.random():
                     found = True
                     testpath.append(state)
@@ -63,9 +53,9 @@ def simulated_annealing(maze):
                     currentstate = state
                     break
         if not found:
-            return path, SOLUTION_NOT_FOUND
+            return path, None
         T = 0.9 * T
-    return path, SOLUTION_FOUND
+    return path, None
 
 RUN = simulated_annealing
 

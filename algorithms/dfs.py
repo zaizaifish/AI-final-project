@@ -3,7 +3,7 @@ import argparse as ap
 from utilities import run_simulation
 from utilities.graphnode import node
 from collections import defaultdict
-from utilities.maze import main, get_maze
+from utilities.maze import *
 SDL = True
 
 name = "Depth First Search"
@@ -20,13 +20,7 @@ def dfs(maze):
             if not visited[next_state]:
                 stack.append(next_state)
                 visited[next_state] = cur
-    res = []
-    cur = goalstate
-    while cur != startstate:
-        res.append(cur)
-        cur = visited[cur]
-    res.append(startstate)
-    res.reverse()
+    res = make_path(startstate, goalstate, visited)
     return res, None
 
 RUN = dfs

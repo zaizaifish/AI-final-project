@@ -3,7 +3,7 @@ import argparse as ap
 from utilities import run_simulation
 from utilities.graphnode import node
 from collections import defaultdict, deque
-from utilities.maze import main, get_maze
+from utilities.maze import *
 SDL = True
 
 name = "bidirectional search"
@@ -33,19 +33,10 @@ def bidirectional_both_bfs(maze):
             if not visited2[next_state]:
                 queue2.append(next_state)
                 visited2[next_state] = cur2
-    res = []
-    cur = intersect
-    while cur != startstate:
-        res.append(cur)
-        cur = visited1[cur]
-    res.append(startstate)
-    res.reverse()
-    cur = visited2[intersect]
-    while cur != goalstate:
-        res.append(cur)
-        cur = visited2[cur]
-    res.append(goalstate)
-    return res, None
+    res1 = make_path(startstate, intersect, visited1)
+    res2 = make_path(goalstate, visited2[intersect], visited2)
+    res2.reverse()
+    return res1 + res2, None
 
 RUN = bidirectional_both_bfs
 

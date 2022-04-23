@@ -106,3 +106,13 @@ def main(fun, maze, to_print = True):
     if to_print:
         print(", ".join(result_path))
     return result_path
+
+def make_path(start, goal, parents):
+    res = []
+    cur = goal
+    while cur != start:
+        res.append(cur)
+        cur = parents[cur]
+    res.append(start)
+    res.reverse()
+    return res

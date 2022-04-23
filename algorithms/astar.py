@@ -5,7 +5,7 @@ from heapq import heappop, heappush
 from utilities import run_simulation
 from utilities.graphnode import node
 from collections import defaultdict
-from utilities.maze import main, get_maze
+from utilities.maze import *
 SDL = True
 
 name = "A* algorithm"
@@ -47,13 +47,7 @@ def astar(maze):
         CLOSED_DICT[q] = g
 
     ### retrieve path
-    res = []
-    cur = goalstate
-    while cur != startstate:
-        res.append(cur)
-        cur = parents[cur]
-    res.append(startstate)
-    res.reverse()
+    res = make_path(startstate, goalstate, parents)
     return res, None
 
 RUN = astar

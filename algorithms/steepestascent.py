@@ -1,40 +1,40 @@
 import sys
 import argparse as ap
-try:
-    try:
-        from .utilities import run_simulation
-        from .utilities.maze import main, get_maze, SOLUTION_FOUND, SOLUTION_NOT_FOUND
-    except ImportError:
-        from utilities import run_simulation
-        from utilities.maze import main, get_maze, SOLUTION_FOUND, SOLUTION_NOT_FOUND
-    SDL = True
-except ImportError:
-    try:
-        from .utilities.maze import main, get_maze, SOLUTION_FOUND, SOLUTION_NOT_FOUND
-    except ImportError:
-        from utilities.maze import main, get_maze, SOLUTION_FOUND, SOLUTION_NOT_FOUND
-    SDL = False
-
+from utilities import run_simulation
+from utilities.graphnode import node
+from collections import defaultdict, deque
+from utilities.maze import *
+SDL = True
 name = "steepest ascent hill climbing"
 
 def steepest_ascent_hill_climbing(maze):
     currentstate = maze.startstate
+    startstate = maze.startstate
     goalstate = maze.goalstate
     path = [currentstate]
-    SUCC = currentstate
-    while currentstate != goalstate:
-        prevstate = currentstate
+    parents = {}
+    def backtrack(currentstate):
+        if currentstate == goalstate: return True ### found goal
+        temp = []
+        beststate, best = None, maze.value(currentstate)
         for state in maze.nextstate(currentstate):
-            if state == goalstate:
-                path.append(state)
-                return path, SOLUTION_FOUND
-            SUCC = state
-            if maze.is_better(SUCC, currentstate):
-                currentstate = SUCC
-        if currentstate == prevstate:
-            return path, SOLUTION_NOT_FOUND
-        path.append(currentstate)
-    return path, SOLUTION_FOUND
+            if maze.value(state) < best:
+                if state not in parents:
+                    best, beststate = maze.value(state), state
+        for state in maze.nextstate(currentstate):
+            if state != beststate:
+                temp.append(state)
+        parents[beststate] = currentstate
+        res = backtrack(beststate)
+        if res: return res
+        for state in temp:
+            if state not in parents:
+                parents[state] = currentstate
+                res = backtrack(state)
+                if res: return res
+    backtrack(currentstate)
+    res_path = make_path(startstate, goalstate, parents)
+    return res_path, None
 
 RUN = steepest_ascent_hill_climbing
 

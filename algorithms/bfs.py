@@ -3,7 +3,7 @@ import argparse as ap
 from utilities import run_simulation
 from utilities.graphnode import node
 from collections import defaultdict, deque
-from utilities.maze import main, get_maze
+from utilities.maze import *
 SDL = True
 name = "Breadth First Search"
 
@@ -19,13 +19,7 @@ def bfs(maze):
             if not visited[next_state]:
                 queue.append(next_state)
                 visited[next_state] = cur
-    res = []
-    cur = goalstate
-    while cur != startstate:
-        res.append(cur)
-        cur = visited[cur]
-    res.append(startstate)
-    res.reverse()
+    res = make_path(startstate, goalstate, visited)
     return res, None
 
 RUN = bfs

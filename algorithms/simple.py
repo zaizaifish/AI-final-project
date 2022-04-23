@@ -1,39 +1,37 @@
 import sys
 import argparse as ap
+from utilities import run_simulation
+from utilities.graphnode import node
+from collections import defaultdict, deque
+from utilities.maze import *
 SDL = True
-try:
-    try:
-        from .utilities import run_simulation
-        from .utilities.maze import main, get_maze, SOLUTION_FOUND, SOLUTION_NOT_FOUND
-    except ImportError:
-        from utilities import run_simulation
-        from utilities.maze import main, get_maze, SOLUTION_FOUND, SOLUTION_NOT_FOUND
-    SDL = True
-except ImportError:
-    try:
-        from .utilities.maze import main, get_maze, SOLUTION_FOUND, SOLUTION_NOT_FOUND
-    except ImportError:
-        from utilities.maze import main, get_maze, SOLUTION_FOUND, SOLUTION_NOT_FOUND
-    SDL = False
 
 name = "simple hill climbing"
 
 def simple_hill_climbing(maze):
     currentstate = maze.startstate
+    startstate = maze.startstate
     goalstate = maze.goalstate
     path = [currentstate]
-    while currentstate != goalstate:
-        found = False
+    parents = {}
+    def backtrack(currentstate):
+        if currentstate == goalstate: return True ### found goal
+        temp = []
         for state in maze.nextstate(currentstate):
             if maze.is_better(state, currentstate):
-                path.append(state)
-                currentstate = state
-                found = True
-                break
-        if found:
-            continue
-        return path, SOLUTION_NOT_FOUND
-    return path, SOLUTION_FOUND
+                if state not in parents:
+                    parents[state] = currentstate
+                    res = backtrack(state)
+                    if res: return res
+            else: 
+                temp.append(state)
+        for state in temp:
+            parents[state] = currentstate
+            res = backtrack(state)
+            if res: return res
+    backtrack(currentstate)
+    res_path = make_path(startstate, goalstate, parents)
+    return res_path, None
 
 RUN = simple_hill_climbing
 
