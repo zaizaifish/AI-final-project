@@ -24,9 +24,10 @@ def steepest_ascent_hill_climbing(maze):
         for state in maze.nextstate(currentstate):
             if state != beststate:
                 temp.append(state)
-        parents[beststate] = currentstate
-        res = backtrack(beststate)
-        if res: return res
+        if beststate:
+            parents[beststate] = currentstate
+            res = backtrack(beststate)
+            if res: return res
         for state in temp:
             if state not in parents:
                 parents[state] = currentstate
