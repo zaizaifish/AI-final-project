@@ -24,7 +24,8 @@ def simple_hill_climbing(maze):
                     res = backtrack(state)
                     if res: return res
             else: 
-                temp.append(state)
+                if state not in parents:
+                    temp.append(state)
         for state in temp:
             parents[state] = currentstate
             res = backtrack(state)
