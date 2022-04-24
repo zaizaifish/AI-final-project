@@ -5,57 +5,53 @@ import argparse as ap
 from utilities import run_simulation
 from utilities.graphnode import node
 from collections import defaultdict, deque
+from heapq import heappop, heappush
 from utilities.maze import *
 SDL = True
 
 name = "simulated annealing"
 
 def simulated_annealing(maze):
-    currentstate = maze.startstate
-    goalstate = maze.goalstate
-    path = [currentstate]
-    testpath = []
     T = 200
     k = 1e-2
     random.seed(1024)
-    prev = None
-    while currentstate != goalstate:
-        found = False
+    currentstate = maze.startstate
+    startstate = maze.startstate
+    goalstate = maze.goalstate
+    path = [currentstate]
+    parents = {}
+    def backtrack(currentstate):
         E1 = maze.value(currentstate)
-        P = True
+        if currentstate == goalstate: return True ### found goal
+        temp = []
         for state in maze.nextstate(currentstate):
-            if P:
-                P = False
-            if state == prev:
-                continue
             E2 = maze.value(state)
-            if state == goalstate:
-                path.append(state)
-                return path, None
             if maze.is_better(state, currentstate):
-                path.extend(testpath)
-                path.append(state)
-                testpath = []
-                prev = currentstate
-                currentstate = state
-                found = True
-                break
-            else:
-                p = 0
-                try:
-                    p = math.e ** (- ((E2 - E1) / (k * T)))
-                except:
-                    p = 1
-                if p < random.random():
-                    found = True
-                    testpath.append(state)
-                    prev = currentstate
-                    currentstate = state
-                    break
-        if not found:
-            return path, None
-        T = 0.9 * T
-    return path, None
+                if state not in parents:
+                    parents[state] = currentstate
+                    res = backtrack(state)
+                    if res: return res
+            else: 
+                if state not in parents:
+                    p = 0
+                    try:
+                        p = math.e ** (- ((E2 - E1) / (k * T)))
+                        T *= 0.9 
+                    except:
+                        p = 1
+                    if p < random.random():
+                        parents[state] = currentstate
+                        res = backtrack(state)
+                        if res: return res
+                    else:
+                        temp.append(state)
+        for state in temp:
+            parents[state] = currentstate
+            res = backtrack(state)
+            if res: return res
+    backtrack(currentstate)
+    res_path = make_path(startstate, goalstate, parents)
+    return res_path, None
 
 RUN = simulated_annealing
 
